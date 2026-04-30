@@ -18,7 +18,7 @@ steps:
         values: ["saturday", "7pm", "7 pm", "7:00"]
 
   - role: "user"
-    message: "Perfect, thank you!"
+    message: "Appreciate it!"
     delay_ms: 1000
     assert:
       - type: "react"
