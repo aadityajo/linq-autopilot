@@ -78,8 +78,7 @@ agent = Agent(
 
 
 @agent.system_prompt
-def _dynamic_system_prompt() -> str:
-    """Renders the system prompt with a fresh timestamp on every agent.run() call."""
+def dynamic_system_prompt() -> str:
     return SYSTEM_PROMPT.format(date_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
