@@ -4,11 +4,7 @@ import hashlib
 from fastapi import BackgroundTasks, Request, HTTPException, Header, APIRouter
 from app.internals.linqClient import client
 from app.core.bot import generate_reply
-
-WEBHOOK_SECRET = os.environ.get("LINQ_WEBHOOK_SECRET")
-
-if not WEBHOOK_SECRET:
-    raise RuntimeError("LINQ_WEBHOOK_SECRET environment variable is not set")
+from app.config import settings
 
 router = APIRouter()
 
@@ -40,7 +36,10 @@ async def handle_linq_webhook(
     raw_payload = await request.body()
 
     if not verify_webhook(
-        WEBHOOK_SECRET, raw_payload, x_webhook_timestamp, x_webhook_signature
+        settings.linq_webhook_secret,
+        raw_payload,
+        x_webhook_timestamp,
+        x_webhook_signature,
     ):
         raise HTTPException(status_code=403, detail="Invalid webhook signature")
 

@@ -66,7 +66,7 @@ export default function Dashboard() {
                 <td className="px-6 py-4 font-medium">{run.scenario_name}</td>
                 <td className="px-6 py-4"><StatusBadge status={run.status} /></td>
                 <td className="px-6 py-4 text-muted-foreground">
-                  {formatDistanceToNow(new Date(run.started_at), { addSuffix: true })}
+                  {formatDistanceToNow(new Date(run.started_at + "Z"), { addSuffix: true })}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <Link href={`/runs/${run.id}`} className="text-primary opacity-0 group-hover:opacity-100 transition-opacity inline-flex items-center gap-1 hover:underline">
