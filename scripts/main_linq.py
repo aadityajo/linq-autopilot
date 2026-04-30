@@ -22,8 +22,8 @@ def test_webhook():
 
 def main():
     chatResponse = client.chats.create(
-        from_=os.environ["FROM_NUMBER"],
-        to=[os.environ["TO_NUMBER"]],
+        from_=os.environ["BOT_NUMBER"],
+        to=[os.environ["CALLER_NUMBER"]],
         message={"parts": [{"type": "text", "value": "Hello from Linq!"}]},
     )
     print(chatResponse)

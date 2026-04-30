@@ -94,8 +94,8 @@ export default function Dashboard() {
 function NewRunModal({ onClose }: { onClose: () => void }) {
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [selected, setSelected] = useState("");
-  const [from, setFrom] = useState("+16504414144");
-  const [to, setTo] = useState("+14044267497");
+  const [botNumber, setBotNumber] = useState("+16504414144");
+  const [callerNumber, setCallerNumber] = useState("+14044267497");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -114,7 +114,7 @@ function NewRunModal({ onClose }: { onClose: () => void }) {
       await fetch("http://localhost:8000/api/runs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenario_file: selected, from_number: from, to_number: to }),
+        body: JSON.stringify({ scenario_file: selected, bot_number: botNumber, caller_number: callerNumber }),
       });
       onClose();
     } catch (err) {
@@ -140,19 +140,19 @@ function NewRunModal({ onClose }: { onClose: () => void }) {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1">From Number (Sandbox)</label>
+          <label className="block text-sm font-medium text-muted-foreground mb-1">Bot Number <span className="text-xs text-zinc-500">(Linq restaurant line)</span></label>
             <input
               type="text" required
               className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary/50"
-              value={from} onChange={(e) => setFrom(e.target.value)}
+              value={botNumber} onChange={(e) => setBotNumber(e.target.value)}
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-muted-foreground mb-1">To Number (Bot)</label>
+            <label className="block text-sm font-medium text-muted-foreground mb-1">Caller Number <span className="text-xs text-zinc-500">(simulated user)</span></label>
             <input
               type="text" required placeholder="+1234567890"
               className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary/50"
-              value={to} onChange={(e) => setTo(e.target.value)}
+              value={callerNumber} onChange={(e) => setCallerNumber(e.target.value)}
             />
           </div>
           <div className="flex items-center justify-end gap-3 mt-6">

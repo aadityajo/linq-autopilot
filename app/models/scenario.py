@@ -2,14 +2,15 @@ from enum import Enum
 from typing import Literal
 from pydantic import BaseModel, Field
 
+
 class AssertionType(str, Enum):
     contains_any = "contains_any"
     contains_all = "contains_all"
     forbidden = "forbidden"
-    asks_for = "asks_for"
     latency_under_ms = "latency_under_ms"
     intent = "intent"
     react = "react"
+
 
 class AssertionConfig(BaseModel):
     type: AssertionType
@@ -17,11 +18,13 @@ class AssertionConfig(BaseModel):
     value: str | int | None = None
     reason: str | None = None
 
+
 class StepConfig(BaseModel):
     role: Literal["user"]
     message: str
     assert_: list[AssertionConfig] = Field(alias="assert", default_factory=list)
     delay_ms: int = 0
+
 
 class ScenarioConfig(BaseModel):
     name: str

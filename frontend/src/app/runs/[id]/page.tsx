@@ -50,7 +50,8 @@ export default function RunDetail() {
           </span>
         </div>
         <div className="flex items-center gap-6 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2"><Smartphone className="w-4 h-4"/> Bot: {run.to_number}</div>
+          <div className="flex items-center gap-2"><Smartphone className="w-4 h-4"/> Bot: {run.bot_number}</div>
+          <div className="flex items-center gap-2"><MessageSquare className="w-4 h-4"/> Caller: {run.caller_number}</div>
           <div className="flex items-center gap-2"><Clock className="w-4 h-4"/> Started: {new Date(run.started_at).toLocaleTimeString()}</div>
         </div>
       </div>

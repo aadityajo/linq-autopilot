@@ -5,8 +5,8 @@ steps:
   - role: "user"
     message: "I need to reschedule my appointment"
     assert:
-      - type: "asks_for"
-        values: ["time", "when", "date"]
+      - type: "intent"
+        value: "Reschedule appointment"
   - role: "user"
     message: "How about tomorrow at 2pm?"
     delay_ms: 1000

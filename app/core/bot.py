@@ -1,3 +1,5 @@
+from typing import Optional, Literal
+from pydantic import BaseModel
 from app.core.botHistory import _load_history, _save_history
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIChatModel
@@ -45,9 +47,20 @@ If asked something outside your remit (e.g. directions to another restaurant, pe
 </out_of_scope>
 
 DO NOT USE emojis
-You have access to a tool to send Tapback reactions to the user's message. Use it to acknowledge short messages like "Thanks!" instead of always replying with text.
-IMPORTANT: If you use the reaction tool, DO NOT output any text response. You MUST output exactly 'NO_TEXT' to end the conversation.
+
+Respond using the output schema:
+- Set "reply" with your text response for normal messages.
+- Set "tapback" (one of: love, like, dislike, laugh, emphasize, question) INSTEAD of reply to send a silent Tapback reaction. Use this for short acknowledgements like "Thanks!" or "Got it!".
+- Never set both reply and tapback. Never set neither — always set exactly one.
 """
+
+
+class BotOutput(BaseModel):
+    reply: Optional[str] = None
+    tapback: Optional[
+        Literal["love", "like", "dislike", "laugh", "emphasize", "question"]
+    ] = None
+
 
 model = OpenAIChatModel(
     "google/gemma-4-e4b",
@@ -59,7 +72,7 @@ model = OpenAIChatModel(
 
 agent = Agent(
     model,
-    deps_type=str,
+    output_type=BotOutput,
     model_settings={"thinking": "low"},
 )
 
@@ -70,31 +83,6 @@ def _dynamic_system_prompt() -> str:
     return SYSTEM_PROMPT.format(date_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
-@agent.tool
-def react_to_message(ctx: RunContext[str], reaction_type: str) -> str:
-    """
-    Sends a reaction (Tapback) to the user's last message. Use this to acknowledge messages without sending a text reply.
-    reaction_type must be exactly one of: love, like, dislike, laugh, emphasize, question.
-    """
-    valid_reactions = ["love", "like", "dislike", "laugh", "emphasize", "question"]
-    if reaction_type not in valid_reactions:
-        return f"Invalid reaction. Must be one of: {valid_reactions}"
-
-    message_id = ctx.deps
-    if not message_id:
-        return "Error: No message ID available to react to."
-
-    try:
-        from app.internals.linqClient import client
-
-        client.messages.add_reaction(
-            message_id=message_id, operation="add", type=reaction_type
-        )
-        return f"Successfully sent '{reaction_type}' reaction."
-    except Exception as e:
-        return f"Failed to send reaction: {e}"
-
-
 async def generate_reply(
     sender_number: str, message_text: str, message_id: str = ""
 ) -> str:
@@ -103,14 +91,23 @@ async def generate_reply(
     history = await _load_history(sender_number)
 
     try:
-        result = await agent.run(message_text, message_history=history, deps=message_id)
-        reply_text = result.output
-        if "NO_TEXT" in reply_text:
-            reply_text = ""
+        result = await agent.run(message_text, message_history=history)
+        output: BotOutput = result.output
 
         await _save_history(sender_number, result.all_messages())
 
-        return reply_text
+        if output.tapback:
+            try:
+                from app.internals.linqClient import client
+
+                client.messages.add_reaction(
+                    message_id=message_id, operation="add", type=output.tapback
+                )
+            except Exception as e:
+                print(f"Failed to send Tapback reaction: {e}")
+            return ""  # No text reply to send
+
+        return output.reply or ""
     except Exception as e:
         print(f"Agent error generating reply: {e}")
         return ""

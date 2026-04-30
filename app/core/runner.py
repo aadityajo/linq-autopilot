@@ -32,13 +32,13 @@ async def execute_run(run_id: int):
             bb_client = BlueBubblesClient(
                 settings.bluebubbles_url, settings.bluebubbles_password
             )
-            chat = find_chat_by_number(bb_client, run.from_number)
+            chat = find_chat_by_number(bb_client, run.bot_number)
             if not chat:
                 run.status = RunStatus.failed
                 session.add(run)
                 session.commit()
                 print(
-                    f"Failed to find BlueBubbles chat with Linq number {run.from_number}"
+                    f"Failed to find BlueBubbles chat for bot number {run.bot_number}"
                 )
                 return
 

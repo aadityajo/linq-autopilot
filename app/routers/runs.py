@@ -15,8 +15,8 @@ router = APIRouter(prefix="/api/runs", tags=["runs"])
 
 class RunStartRequest(BaseModel):
     scenario_file: str
-    from_number: str
-    to_number: str
+    bot_number: str
+    caller_number: str
 
 
 class RunStartResponse(BaseModel):
@@ -36,13 +36,13 @@ async def start_run(
         scenario_file=request.scenario_file,
         status=RunStatus.pending,
         started_at=datetime.now(timezone.utc),
-        from_number=request.from_number,
-        to_number=request.to_number,
+        bot_number=request.bot_number,
+        caller_number=request.caller_number,
     )
     session.add(run)
     session.commit()
-    await _delete_history(request.to_number)
-    await _delete_history(request.from_number)
+    await _delete_history(request.bot_number)
+    await _delete_history(request.caller_number)
     background_tasks.add_task(execute_run, run.id)
 
     return RunStartResponse(id=run.id)

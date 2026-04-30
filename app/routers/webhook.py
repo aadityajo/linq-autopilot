@@ -74,9 +74,9 @@ async def process_restaurant_reply(sender: str, text: str, message_id: str = "")
     reply = await generate_reply(sender, text, message_id)
     if reply:
         try:
-            from_number = os.environ.get("FROM_NUMBER")
+            bot_number = os.environ.get("BOT_NUMBER")
             client.chats.create(
-                from_=from_number,
+                from_=bot_number,
                 to=[sender],
                 message={"parts": [{"type": "text", "value": reply}]},
             )

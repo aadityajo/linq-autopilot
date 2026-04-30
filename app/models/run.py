@@ -17,8 +17,8 @@ class TestRun(SQLModel, table=True):
     status: RunStatus
     started_at: datetime
     finished_at: Optional[datetime] = None
-    from_number: str
-    to_number: str
+    bot_number: str    # Linq restaurant number (the bot sends from here)
+    caller_number: str  # Simulated user / tester number
 
 class StepResult(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
