@@ -1,0 +1,21 @@
+name: "Appointment Reschedule"
+description: "Tests the happy path for rescheduling an appointment, expecting the bot to ask for a new time before confirming."
+timeout_ms: 80000
+steps:
+  - role: "user"
+    message: "I need to reschedule my appointment"
+    assert:
+      - type: "asks_for"
+        values: ["time", "when", "date"]
+  - role: "user"
+    message: "How about tomorrow at 2pm?"
+    delay_ms: 1000
+    assert:
+      - type: "intent"
+        value: "Confirm the new appointment time"
+  - role: "user"
+    message: "Thank you!!"
+    delay_ms: 1000
+    assert:
+      - type: "react"
+        values: ["love", "like"]

@@ -1,0 +1,19 @@
+name: "Edge Cases"
+description: "Tests bot robustness against weird inputs."
+timeout_ms: 120000
+steps:
+  - role: "user"
+    message: "🎃🔥🎉"
+    assert:
+      - type: "intent"
+        value: "Ask the user how the bot can help"
+  - role: "user"
+    message: "I nede tooo reshedul my apointment plz"
+    assert:
+      - type: "intent"
+        value: "Ask for a new appointment time despite the typos"
+  - role: "user"
+    message: "Tomorrow 4 pm"
+    assert:
+      - type: "intent"
+        value: "Confirm the new appointment time"

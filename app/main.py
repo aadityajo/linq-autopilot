@@ -1,15 +1,33 @@
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from fastapi import FastAPI
-from app.routers.webhook import router
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+from sqlmodel import SQLModel
+from app.database import engine
+from app.routers import webhook, runs, scenarios
 
-app = FastAPI()
-app.include_router(router)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    SQLModel.metadata.create_all(engine)
+    yield
 
+app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(webhook.router)
+app.include_router(runs.router)
+app.include_router(scenarios.router)
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+    return {"Hello": "Linq Autopilot QA is running"}

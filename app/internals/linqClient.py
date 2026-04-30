@@ -1,4 +1,4 @@
 from linq import LinqAPIV3
-import os
+from app.config import settings
 
-client = LinqAPIV3(api_key=os.environ.get("LINQ_API_KEY"))
+client = LinqAPIV3(api_key=settings.linq_api_key)
