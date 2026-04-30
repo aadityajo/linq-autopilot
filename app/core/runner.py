@@ -1,5 +1,4 @@
 import asyncio
-import uuid
 import time
 from datetime import datetime, timezone
 from app.models.run import TestRun, StepResult, RunStatus

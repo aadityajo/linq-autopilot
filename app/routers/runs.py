@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel
-from redis.asyncio import Redis
 from sqlmodel import Session, select
 
 from app.core.runner import execute_run

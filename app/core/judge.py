@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
+from app.config import settings
 
 
 class IntentJudgment(BaseModel):
@@ -15,7 +16,7 @@ LMSTUDIO_MODEL = "google/gemma-4-e4b"
 model = OpenAIChatModel(
     LMSTUDIO_MODEL,
     provider=OpenAIProvider(
-        base_url="http://localhost:1234/v1",
+        base_url=settings.lmstudio_base_url,
         api_key="lm-studio",
     ),
 )

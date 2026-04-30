@@ -60,9 +60,14 @@ model = OpenAIChatModel(
 agent = Agent(
     model,
     deps_type=str,
-    system_prompt=SYSTEM_PROMPT,
     model_settings={"thinking": "low"},
 )
+
+
+@agent.system_prompt
+def _dynamic_system_prompt() -> str:
+    """Renders the system prompt with a fresh timestamp on every agent.run() call."""
+    return SYSTEM_PROMPT.format(date_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
 @agent.tool
@@ -98,9 +103,6 @@ async def generate_reply(
     history = await _load_history(sender_number)
 
     try:
-        agent.system_prompt = SYSTEM_PROMPT.format(
-            date_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        )
         result = await agent.run(message_text, message_history=history, deps=message_id)
         reply_text = result.output
         if "NO_TEXT" in reply_text:

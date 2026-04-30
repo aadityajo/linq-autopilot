@@ -1,8 +1,7 @@
 import os
 import hmac
 import hashlib
-import asyncio
-from fastapi import Request, HTTPException, Header, APIRouter
+from fastapi import BackgroundTasks, Request, HTTPException, Header, APIRouter
 from app.internals.linqClient import client
 from app.core.bot import generate_reply
 
@@ -30,6 +29,7 @@ def verify_webhook(
 @router.post("/webhook")
 async def handle_linq_webhook(
     request: Request,
+    background_tasks: BackgroundTasks,
     x_webhook_signature: str = Header(None),
     x_webhook_timestamp: str = Header(None),
     x_webhook_event: str = Header(None),
@@ -58,8 +58,8 @@ async def handle_linq_webhook(
             if response_text.strip():
                 message_id = getattr(message_data, "id", "")
 
-                asyncio.create_task(
-                    process_restaurant_reply(sender, response_text, message_id)
+                background_tasks.add_task(
+                    process_restaurant_reply, sender, response_text, message_id
                 )
 
         return {"status": "success"}
