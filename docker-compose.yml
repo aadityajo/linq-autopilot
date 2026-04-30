@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    environment:
+      - LINQ_API_KEY=${LINQ_API_KEY}
+      - LINQ_WEBHOOK_SECRET=${LINQ_WEBHOOK_SECRET}
+      - DATABASE_URL=sqlite:///./app/autopilot.db
+      - FRONTEND_URL=http://localhost:3000
+      - REDIS_URL=redis://redis:6379
+      - BLUEBUBBLES_URL=${BLUEBUBBLES_URL}
+      - BLUEBUBBLES_PASSWORD=${BLUEBUBBLES_PASSWORD}
+      - BOT_NUMBER=${BOT_NUMBER}
+      - CALLER_NUMBER=${CALLER_NUMBER}
+      - LMSTUDIO_BASE_URL=${LMSTUDIO_BASE_URL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+    command: >
+      sh -c "uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    command: npm run dev
