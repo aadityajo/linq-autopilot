@@ -1,12 +1,9 @@
-import json
 import os
 import hmac
 import hashlib
 import asyncio
-from fastapi import Request, HTTPException, Header, APIRouter, Depends
-from sqlmodel import Session
+from fastapi import Request, HTTPException, Header, APIRouter
 from app.internals.linqClient import client
-from app.database import get_session
 from app.core.bot import generate_reply
 
 WEBHOOK_SECRET = os.environ.get("LINQ_WEBHOOK_SECRET")
@@ -36,7 +33,6 @@ async def handle_linq_webhook(
     x_webhook_signature: str = Header(None),
     x_webhook_timestamp: str = Header(None),
     x_webhook_event: str = Header(None),
-    session: Session = Depends(get_session),
 ):
     if not x_webhook_signature or not x_webhook_timestamp:
         raise HTTPException(status_code=400, detail="Missing webhook headers")
@@ -49,7 +45,6 @@ async def handle_linq_webhook(
         raise HTTPException(status_code=403, detail="Invalid webhook signature")
 
     try:
-        # Validate syntax via client
         event = client.webhooks.events(payload=raw_payload.decode("utf-8"))
 
         if event.event_type == "message.received":
@@ -62,7 +57,7 @@ async def handle_linq_webhook(
 
             if response_text.strip():
                 message_id = getattr(message_data, "id", "")
-                # Generate AI reply in background so we don't block the webhook 200 OK
+
                 asyncio.create_task(
                     process_restaurant_reply(sender, response_text, message_id)
                 )
@@ -74,14 +69,11 @@ async def handle_linq_webhook(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-async def process_restaurant_reply(
-    sender: str, text: str, message_id: str = "", clear_history: bool = False
-):
+async def process_restaurant_reply(sender: str, text: str, message_id: str = ""):
     print(f"Generating Restaurant reply for: {text}")
-    reply = await generate_reply(sender, text, message_id, clear_history)
+    reply = await generate_reply(sender, text, message_id)
     if reply:
         try:
-            # The Webhook acts as the Linq bot, so it replies back to the sender
             from_number = os.environ.get("FROM_NUMBER")
             client.chats.create(
                 from_=from_number,

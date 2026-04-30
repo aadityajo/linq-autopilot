@@ -1,3 +1,4 @@
+from app.core.botHistory import _load_history, _save_history
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIChatModel
 from pydantic_ai.providers.openai import OpenAIProvider
@@ -89,25 +90,14 @@ def react_to_message(ctx: RunContext[str], reaction_type: str) -> str:
         return f"Failed to send reaction: {e}"
 
 
-# In-memory dictionary tracking conversation history per phone number
-# Format: { "+14041234567": [ ... messages ... ] }
-conversation_histories = {}
-
-
 async def generate_reply(
-    sender_number: str,
-    message_text: str,
-    message_id: str = "",
-    clear_history: bool = False,
+    sender_number: str, message_text: str, message_id: str = ""
 ) -> str:
     """Passes the incoming message through the agent, maintaining history."""
-    if clear_history:
-        conversation_histories[sender_number] = []
 
-    history = conversation_histories.get(sender_number, [])
+    history = await _load_history(sender_number)
 
     try:
-        # Run inference via the agent
         agent.system_prompt = SYSTEM_PROMPT.format(
             date_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         )
@@ -116,8 +106,7 @@ async def generate_reply(
         if "NO_TEXT" in reply_text:
             reply_text = ""
 
-        # Save updated conversation history
-        conversation_histories[sender_number] = result.all_messages()
+        await _save_history(sender_number, result.all_messages())
 
         return reply_text
     except Exception as e:

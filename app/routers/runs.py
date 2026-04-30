@@ -1,15 +1,15 @@
-import uuid
-import asyncio
+from app.core.botHistory import _delete_history
 from datetime import datetime, timezone
-from fastapi import APIRouter, HTTPException, Depends, Request, BackgroundTasks
-from sqlmodel import Session, select
-from pydantic import BaseModel
-from typing import List, Optional
-import json
 
-from app.database import get_session
-from app.models.run import TestRun, StepResult, RunStatus
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from pydantic import BaseModel
+from redis.asyncio import Redis
+from sqlmodel import Session, select
+
 from app.core.runner import execute_run
+from app.database import get_session
+from app.models.run import RunStatus, StepResult, TestRun
+from app.redis import get_redis
 
 router = APIRouter(prefix="/api/runs", tags=["runs"])
 
@@ -25,7 +25,7 @@ class RunStartResponse(BaseModel):
 
 
 @router.post("", response_model=RunStartResponse)
-def start_run(
+async def start_run(
     request: RunStartRequest,
     background_tasks: BackgroundTasks,
     session: Session = Depends(get_session),
@@ -42,7 +42,8 @@ def start_run(
     )
     session.add(run)
     session.commit()
-
+    await _delete_history(request.to_number)
+    await _delete_history(request.from_number)
     background_tasks.add_task(execute_run, run.id)
 
     return RunStartResponse(id=run.id)
