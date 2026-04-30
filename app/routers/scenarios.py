@@ -13,10 +13,3 @@ def get_scenarios():
     scenarios = list_scenarios()
     return ScenarioListResponse(scenarios=scenarios)
 
-@router.post("/validate")
-def validate_scenario(payload: dict):
-    try:
-        scenario = ScenarioConfig(**payload)
-        return {"status": "valid", "parsed": scenario.model_dump()}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))

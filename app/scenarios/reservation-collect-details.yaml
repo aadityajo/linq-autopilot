@@ -1,0 +1,34 @@
+name: "Reservation Multi-Turn Detail Collection"
+description: "Tests that the bot progressively collects date, time, and party size when given one piece at a time."
+timeout_ms: 120000
+steps:
+  - role: "user"
+    message: "I want to book a table for next Friday"
+    assert:
+      - type: "intent"
+        value: "Ask for the party size or time to complete the reservation"
+
+  - role: "user"
+    message: "There will be 4 of us"
+    delay_ms: 1500
+    assert:
+      - type: "intent"
+        value: "Ask for the preferred time to complete the reservation"
+
+  - role: "user"
+    message: "Around 8pm works"
+    delay_ms: 1500
+    assert:
+      - type: "intent"
+        value: "Confirm the reservation for 4 people on Friday at 8pm"
+      - type: "contains_any"
+        values: ["friday", "8pm", "8 pm", "8:00"]
+      - type: "contains_any"
+        values: ["4", "four"]
+
+  - role: "user"
+    message: "Perfect, thank you!"
+    delay_ms: 1000
+    assert:
+      - type: "react"
+        values: ["love", "like"]

@@ -1,0 +1,25 @@
+name: "Out of Scope Graceful Redirect"
+description: "Tests that the bot politely declines off-topic requests and redirects to what it can help with."
+timeout_ms: 90000
+steps:
+  - role: "user"
+    message: "What is the best restaurant in Atlanta?"
+    assert:
+      - type: "intent"
+        value: "Decline to recommend other restaurants and redirect to helping with Linq Bistro"
+
+  - role: "user"
+    message: "Can you give me the wifi password?"
+    delay_ms: 1000
+    assert:
+      - type: "intent"
+        value: "Say they cannot help with wifi and offer to help with a reservation or menu question"
+
+  - role: "user"
+    message: "Actually can I book a table for 2 on Thursday at 6pm?"
+    delay_ms: 1000
+    assert:
+      - type: "intent"
+        value: "Confirm the reservation for 2 people on Thursday at 6pm"
+      - type: "contains_any"
+        values: ["thursday", "6pm", "6 pm", "6:00"]

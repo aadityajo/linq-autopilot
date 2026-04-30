@@ -1,19 +1,27 @@
 name: "Edge Cases"
-description: "Tests bot robustness against weird inputs."
+description: "Tests bot robustness: emoji-only messages, typo-heavy input, and over-size party requests."
 timeout_ms: 120000
 steps:
   - role: "user"
-    message: "🎃🔥🎉"
+    message: "🍽️🎉"
     assert:
       - type: "intent"
-        value: "Ask the user how the bot can help"
+        value: "Greet the user or ask how the bot can help with a reservation"
+
   - role: "user"
-    message: "I nede tooo reshedul my apointment plz"
+    message: "i wana resrev a tabel for saturdey nite"
+    delay_ms: 1000
     assert:
       - type: "intent"
-        value: "Ask for a new appointment time despite the typos"
+        value: "Understand the intent to make a reservation despite typos and ask for time or party size"
+
   - role: "user"
-    message: "Tomorrow 4 pm"
+    message: "we need a table for like 15 people"
+    delay_ms: 1000
     assert:
       - type: "intent"
-        value: "Confirm the new appointment time"
+        value: "Explain that the restaurant cannot accommodate parties over 10 and ask them to call directly"
+      - type: "contains_any"
+        values: ["call", "phone", "directly", "contact"]
+      - type: "forbidden"
+        values: ["booked", "confirmed", "set"]

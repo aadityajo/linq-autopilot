@@ -2,6 +2,7 @@ import uuid
 import requests
 from urllib.parse import quote
 
+
 class BlueBubblesClient:
     def __init__(self, base_url: str, password: str):
         self.base_url = base_url.rstrip("/")
@@ -16,7 +17,7 @@ class BlueBubblesClient:
         except requests.exceptions.HTTPError as e:
             print(f"BlueBubbles API Error: {response.text}")
             raise
-        
+
         data = response.json()
         if data.get("status") not in (200, 201):
             raise RuntimeError(data)
@@ -69,6 +70,7 @@ class BlueBubblesClient:
             timeout=30,
         )
         return self._check(r)
+
 
 def find_chat_by_number(client: BlueBubblesClient, target_number: str):
     chats = client.list_chats(limit=100)

@@ -1,0 +1,27 @@
+name: "Menu and Dietary FAQ"
+description: "Tests that the bot can answer questions about the menu, dietary options, and restaurant hours."
+timeout_ms: 90000
+steps:
+  - role: "user"
+    message: "Do you have vegetarian options?"
+    assert:
+      - type: "intent"
+        value: "Confirm that vegetarian options are available"
+      - type: "contains_any"
+        values: ["vegetarian", "vegan", "plant"]
+
+  - role: "user"
+    message: "What time do you open on Sundays?"
+    delay_ms: 1000
+    assert:
+      - type: "contains_any"
+        values: ["brunch", "11am", "11 am", "sunday"]
+      - type: "intent"
+        value: "State the Sunday brunch hours and mention there is no Sunday dinner service"
+
+  - role: "user"
+    message: "What is your most popular dish?"
+    delay_ms: 1000
+    assert:
+      - type: "contains_any"
+        values: ["shrimp", "grits", "chicken", "wagyu", "burger", "tasting menu"]

@@ -1,0 +1,18 @@
+name: "Reservation Cancellation"
+description: "Tests that the bot asks for confirmation before cancelling and confirms it afterwards."
+timeout_ms: 90000
+steps:
+  - role: "user"
+    message: "I need to cancel my reservation for tomorrow night"
+    assert:
+      - type: "intent"
+        value: "Ask the guest to confirm the cancellation before proceeding"
+
+  - role: "user"
+    message: "Yes please cancel it"
+    delay_ms: 1000
+    assert:
+      - type: "intent"
+        value: "Confirm the reservation has been cancelled"
+      - type: "forbidden"
+        values: ["cannot", "unable", "sorry, I can't"]
