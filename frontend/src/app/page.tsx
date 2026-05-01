@@ -94,8 +94,8 @@ export default function Dashboard() {
 function NewRunModal({ onClose }: { onClose: () => void }) {
   const [scenarios, setScenarios] = useState<any[]>([]);
   const [selected, setSelected] = useState("");
-  const [botNumber, setBotNumber] = useState("+16504414144");
-  const [callerNumber, setCallerNumber] = useState("+14044267497");
+  const [botNumber, setBotNumber] = useState("");
+  const [callerNumber, setCallerNumber] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -140,7 +140,7 @@ function NewRunModal({ onClose }: { onClose: () => void }) {
             </select>
           </div>
           <div>
-          <label className="block text-sm font-medium text-muted-foreground mb-1">Bot Number <span className="text-xs text-zinc-500">(Linq restaurant line)</span></label>
+            <label className="block text-sm font-medium text-muted-foreground mb-1">Bot Number <span className="text-xs text-zinc-500">(Linq restaurant line)</span></label>
             <input
               type="text" required
               className="w-full bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-primary/50"
